@@ -12,13 +12,13 @@ export class Article {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column('text')
+  @Column({ type: 'text' })
   title: string;
 
-  @Column('text')
+  @Column({ type: 'text' })
   description: string;
 
-  @Column('text')
+  @Column({ type: 'text' })
   content: string;
 
   @CreateDateColumn()
