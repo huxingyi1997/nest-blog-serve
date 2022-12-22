@@ -25,3 +25,5 @@ export const getPagination = (
     pages,
   };
 };
+
+export * from './regex.util';
