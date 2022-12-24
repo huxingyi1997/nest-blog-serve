@@ -14,8 +14,8 @@ export interface Pagination {
  */
 export const getPagination = (
   total: number,
-  pageSize: number,
   page: number,
+  pageSize: number,
 ): Pagination => {
   const pages = Math.ceil(total / pageSize);
   return {

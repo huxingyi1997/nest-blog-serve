@@ -1,12 +1,14 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { getPagination, type Pagination } from '../../utils';
-import { Repository, UpdateResult } from 'typeorm';
+import { getPagination } from '../../utils';
+import { Repository } from 'typeorm';
 import { ArticleCreateDTO } from './dto/article-create.dto';
 import { ArticleEditDTO } from './dto/article-edit.dto';
 import { IdDTO } from './dto/id.dto';
 import { ListDTO } from './dto/list.dto';
 import { Article } from './entity/article.entity';
+import { ArticleListVO } from './vo/article-list.vo';
+import { ArticleInfoVO } from './vo/article-info.vo';
 
 @Injectable()
 export class ArticleService {
@@ -20,9 +22,7 @@ export class ArticleService {
    * @param listDTO
    * @returns response
    */
-  async getList(
-    listDTO: ListDTO,
-  ): Promise<{ info: Article[]; pagination: Pagination } | never> {
+  async getList(listDTO: ListDTO): Promise<ArticleListVO> {
     const { page = 1, pageSize = 10 } = listDTO;
     const [articleList, total] = await this.articleRepository
       .createQueryBuilder('article')
@@ -54,7 +54,7 @@ export class ArticleService {
    * @param idDTO
    * @returns response
    */
-  async getOne(idDTO: IdDTO): Promise<{ info: Article } | never> {
+  async getOne(idDTO: IdDTO): Promise<ArticleInfoVO> {
     const { id } = idDTO;
     const articleDetail = await this.articleRepository
       .createQueryBuilder('article')
@@ -76,9 +76,7 @@ export class ArticleService {
    * @param articleCreateDTO
    * @returns response
    */
-  async create(
-    articleCreateDTO: ArticleCreateDTO,
-  ): Promise<{ info: Article } | never> {
+  async create(articleCreateDTO: ArticleCreateDTO): Promise<ArticleInfoVO> {
     const article = await this.articleRepository.save({ ...articleCreateDTO });
 
     if (!article) {
@@ -93,23 +91,27 @@ export class ArticleService {
 
   /**
    *
-   * @param articleEditDTO
+   * @param idDTO, articleEditDTO
    * @returns response
    */
   async update(
+    idDTO: IdDTO,
     articleEditDTO: ArticleEditDTO,
-  ): Promise<{ info: UpdateResult } | never> {
-    const { id, ...otherParams } = articleEditDTO;
+  ): Promise<ArticleInfoVO> {
+    const { id } = idDTO;
     const articleUpdateResult = await this.articleRepository.update(
       { id },
-      { ...otherParams },
+      articleEditDTO,
     );
     if (!articleUpdateResult) {
       throw new NotFoundException('Article Not Exit');
     }
-
+    const article = await this.articleRepository
+      .createQueryBuilder('article')
+      .where('article.id = :id', { id })
+      .getOne();
     const response = {
-      info: articleUpdateResult,
+      info: article,
     };
     return response;
   }
@@ -119,7 +121,7 @@ export class ArticleService {
    * @param idDTO
    * @returns response
    */
-  async delete(idDTO: IdDTO): Promise<{ info: UpdateResult } | never> {
+  async delete(idDTO: IdDTO): Promise<ArticleInfoVO> {
     const { id } = idDTO;
     const articleDeleteResult = await this.articleRepository.update(
       { id },
@@ -129,8 +131,12 @@ export class ArticleService {
       throw new NotFoundException('Article Not Exit');
     }
 
+    const article = await this.articleRepository
+      .createQueryBuilder('article')
+      .where('article.id = :id', { id })
+      .getOne();
     const response = {
-      info: articleDeleteResult,
+      info: article,
     };
     return response;
   }
