@@ -4,6 +4,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ArticleModule } from './modules/article/article.module';
 import { Article } from './modules/article/entity/article.entity';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { Article } from './modules/article/entity/article.entity';
       synchronize: true,
     }),
     ArticleModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [AppService],

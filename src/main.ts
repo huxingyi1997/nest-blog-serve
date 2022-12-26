@@ -16,6 +16,7 @@ async function bootstrap() {
     .setTitle('blog-serve')
     .setDescription('Api document')
     .setVersion('1.00.00')
+    .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, options);
   SwaggerModule.setup('swagger-doc', app, document);
